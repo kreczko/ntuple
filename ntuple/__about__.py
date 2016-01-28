@@ -1,0 +1,8 @@
+__title__ = 'ntuple'
+__package_name__ = 'ntuple'
+__author__ = 'Lukasz Kreczko'
+__description__ = 'Python package for ntuple creation'
+__email__ = 'Lukasz.Kreczko@cern.ch'
+__version__ = '0.0.1'
+__license__ = 'MIT'
+__copyright__ = 'Copyright 2016 Lukasz Kreczko'
