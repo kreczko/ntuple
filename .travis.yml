@@ -22,11 +22,13 @@ install:
   - conda config --set always_yes yes --set changeps1 no
   - conda update -q conda
   - conda info -a
-  - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION nose pytest flake8
+  - conda create -q -n ntuple python=$TRAVIS_PYTHON_VERSION nose pytest flake8 gcc
+  - source activate ntuple
   - conda install -c https://conda.anaconda.org/nlesc root rootpy
   - pip install -r requirements.txt
+# workaround for https://github.com/remenska/root-conda-recipes/issues/6
+  - source deactivate && source activate ntuple
 
 # command to run tests, e.g. python setup.py test
 script: 
-  - time make install-user
-  - time make test-installed
+  - time make test
