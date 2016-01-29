@@ -85,6 +85,8 @@ class NTupleContent(object):
 
         self._counter = Counter()
 
+        self._created_branches = False
+
     def add_variable(self, variable):
         pass
 
@@ -93,6 +95,11 @@ class NTupleContent(object):
 
     def fill(self, event):
         self._counter['processed events'] += 1
+        if not self._created_branches:
+            self.__create_branches__()
+
+    def __create_branches__(self):
+        pass
 
     def save(self):
         self._tree.write()
