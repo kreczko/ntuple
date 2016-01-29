@@ -30,3 +30,4 @@ install:
 # command to run tests, e.g. python setup.py test
 script: 
   - time make test
+  - time make lint

@@ -38,7 +38,7 @@ inplace:
 	@$(PYTHON) setup.py build_ext -i
 
 lint:
-	flake8 ntuple
+	@flake8 ntuple
 
 test-code: inplace
 	@$(NOSETESTS) -v -a '!slow' -s ntuple
