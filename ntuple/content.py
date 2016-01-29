@@ -26,10 +26,13 @@ class NTupleVariable(object):
         '''
         Constructor
         '''
+        self._name = output_name
+        self._type = vtype
         self._extract_function = extract_function
+        self._help = help_doc
 
     def extract(self, event):
-        return self._extract_function(event)
+        return {self._name: self._extract_function(event)}
 
 
 class NTupleCollection(object):
@@ -41,6 +44,27 @@ class NTupleCollection(object):
         '''
         Constructor
         '''
+        self._name = output_name
+        self._source = source
+        self._help = help_doc
+        self._variables = NTupleCollection.prepend_name(self._name, variables)
+
+    @staticmethod
+    def prepend_name(col_name, variables):
+        for var in variables:
+            var._name = col_name + '.' + var._name
+        return variables
+
+    def extract(self, event):
+        collection = self._source(event)
+        result = []
+        for c in collection:
+            all_vars = {}
+            for var in self._variables:
+                all_vars.update(var.extract(c))
+            result.append(all_vars)
+
+        return result
 
 
 class NTupleContent(object):

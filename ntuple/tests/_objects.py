@@ -19,6 +19,12 @@ class Event(object):
     def electrons(self):
         return self._electrons
 
+    def nice_electrons(self):
+        """
+            same as 'Event.electrons' but accessed via a function
+        """
+        return self._electrons
+
 
 class CMSSWEvent(object):
     """

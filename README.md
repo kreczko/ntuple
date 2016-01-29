@@ -39,7 +39,7 @@ n = NTupleContent(tree_name = 'events', output_file = 'ntuple.root')
 isRealData = NTupleVariable = (output_name = "isRealData", 
 					   vtype = 'bool', extract_function = lambda event: event.isRealData(), help_doc = 'Maps event.isRealData() to event.isRealData')
 # this will produce the vectors electron.pt, electron.eta and electron.charge
-electrons = NTupleCollection('electron', source = 'slimmedElectrons', 
+electrons = NTupleCollection('electron', source = lambda event: event.slimmedElectrons, 
 							help_doc = 'maps event.slimmedElectrons.<> onto event.electron.<> where <> mappings are defined by added NTupleVariables',
 							variables = [
 							NTupleVariable = ("pt", vtype = 'float', extract_function = lambda e: e.pt(), help_doc = 'electron transverse momentum (pt)'),

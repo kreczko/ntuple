@@ -22,21 +22,39 @@ class TestNTupleVariable(unittest.TestCase):
     def test_simple_var_access(self):
         run_number = NTupleVariable(
             'run_number', vtype='uint',
-            extract_function=lambda event: event.getRun())
-        self.assertEqual(run_number.extract(self.event1), self.event1.getRun())
-        self.assertEqual(run_number.extract(self.event2), self.event2.getRun())
+            extract_function=lambda event: event.getRun()
+        )
+
+        self.assertEqual(
+            run_number.extract(self.event1).get('run_number'),
+            self.event1.getRun()
+        )
+        self.assertEqual(
+            run_number.extract(self.event2).get('run_number'),
+            self.event2.getRun()
+        )
 
         event_number = NTupleVariable(
             'event_number', vtype='uint',
-            extract_function=lambda event: event.id())
-        self.assertEqual(event_number.extract(self.event1), self.event1.id())
-        self.assertEqual(event_number.extract(self.event2), self.event2.id())
+            extract_function=lambda event: event.id()
+        )
+        self.assertEqual(
+            event_number.extract(self.event1).get('event_number'),
+            self.event1.id()
+        )
+        self.assertEqual(
+            event_number.extract(self.event2).get('event_number'),
+            self.event2.id()
+        )
 
     def test_collection_var_access(self):
         first_e_pt = NTupleVariable(
             'first_e_pt', vtype='float',
             extract_function=lambda event: event.electrons[0].pt)
-        self.assertEqual(first_e_pt.extract(self.event1), self.e1.pt)
+        self.assertEqual(
+            first_e_pt.extract(self.event1).get('first_e_pt'),
+            self.e1.pt
+        )
 
     def tearDown(self):
         pass
