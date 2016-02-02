@@ -7,10 +7,31 @@ Created on 27 Jan 2016
 from rootpy.tree import Tree
 from rootpy.io import root_open
 from collections import Counter
+from rootpy.tree.treetypes import IntCol, UIntCol, BoolCol, FloatCol
+from rootpy.stl import vector
+
+__type_map__ = {
+    'int': IntCol,
+    'uint': UIntCol,
+    'bool': BoolCol,
+    'float': FloatCol,
+    'vec:int': vector('int'),
+    'vec:uint': vector('uint'),
+    'vec:bool': vector('bool'),
+    'vec:float': vector('float'),
+}
 
 
-def convert_type(ntuple_type, root_type):
-    pass
+def convert_type(ntuple_type):
+    '''
+        converts an NTuple type ('int', 'uint', 'float', 'vec:int', etc)
+        into the equivalent ROOT type
+    '''
+    try:
+        root_type = __type_map__.get(ntuple_type)
+    except KeyError:
+        print 'Unknown ntuple type "{}"'.format(ntuple_type)
+    return root_type
 
 
 class NTupleVariable(object):
