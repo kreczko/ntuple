@@ -9,6 +9,10 @@ from rootpy.io import root_open
 from collections import Counter
 
 
+def convert_type(ntuple_type, root_type):
+    pass
+
+
 class NTupleVariable(object):
     '''
     Class for mapping a TTree branch to a value
@@ -33,6 +37,10 @@ class NTupleVariable(object):
 
     def extract(self, event):
         return {self._name: self._extract_function(event)}
+
+    @property
+    def branch(self):
+        return {self._name, self._type}
 
 
 class NTupleCollection(object):
@@ -66,6 +74,10 @@ class NTupleCollection(object):
 
         return result
 
+    @property
+    def branches(self):
+        return 0
+
 
 class NTupleContent(object):
     '''
@@ -78,7 +90,7 @@ class NTupleContent(object):
         '''
         self._tree_name = tree_name
         self._output_file = output_file
-        self._file = root_open(output_file)
+        self._file = root_open(output_file, 'recreate')
         self._tree = Tree(tree_name)
 
         self._variables = []
@@ -86,6 +98,10 @@ class NTupleContent(object):
         self._counter = Counter()
 
         self._created_branches = False
+
+    @property
+    def branches(self):
+        return 0
 
     def add_variable(self, variable):
         pass
@@ -95,6 +111,7 @@ class NTupleContent(object):
 
     def fill(self, event):
         self._counter['processed events'] += 1
+
         if not self._created_branches:
             self.__create_branches__()
 

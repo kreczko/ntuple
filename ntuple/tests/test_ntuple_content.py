@@ -44,15 +44,21 @@ class TestNTupleContent(unittest.TestCase):
         self.content.add_variable(self.run_number)
         self.content.add_variable(self.event_number)
         map(self.content.fill, [self.event1, self.event2])
+        self.content.save()
+
+    def testFileCreation(self):
+        import os
+        self.assertTrue(os.path.exists(self.output_file))
 
     def testTreeBranches(self):
         with File.open(self.output_file) as f:
             self.assertTrue(f.__contains__('events'))
             tree = f.get('events')
-            self.assertTrue(tree.has_branch('run_number'))
-            self.assertTrue(tree.has_branch('event_number'))
-            self.assertTrue(tree.has_branch('electrons.pt'))
-            self.assertTrue(tree.has_branch('electrons.hoE'))
+            branches = ['run_number', 'event_number',
+                        'electrons.pt', 'electrons.hoE']
+            for branch in branches:
+                error_msg = "Branch '{}' does not exist".format(branch)
+                self.assertTrue(tree.has_branch(branch), error_msg)
 
     def tearDown(self):
         pass
