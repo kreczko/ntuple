@@ -8,17 +8,18 @@ from rootpy.tree import Tree
 from rootpy.io import root_open
 from collections import Counter
 from rootpy.tree.treetypes import IntCol, UIntCol, BoolCol, FloatCol
-from rootpy.stl import vector
+from rootpy  import stl
+from rootpy.tree.model import TreeModelMeta, TreeModel
 
 __type_map__ = {
     'int': IntCol,
     'uint': UIntCol,
     'bool': BoolCol,
     'float': FloatCol,
-    'vec:int': vector('int'),
-    'vec:uint': vector('uint'),
-    'vec:bool': vector('bool'),
-    'vec:float': vector('float'),
+    'vec:int': stl.vector,
+    'vec:uint': stl.vector,
+    'vec:bool': stl.vector,
+    'vec:float': stl.vector,
 }
 
 
@@ -29,10 +30,14 @@ def convert_type(ntuple_type):
     '''
     try:
         root_type = __type_map__.get(ntuple_type)
+        if 'vec' in ntuple_type:
+            basic_type = ntuple_type.split(':')[-1]
+            return root_type(basic_type)
+        else:
+            return root_type()
     except KeyError:
-        print 'Unknown ntuple type "{}"'.format(ntuple_type)
-    return root_type
-
+        # @TODO: change this into logger
+        print('Unknown ntuple type "{}"'.format(ntuple_type))
 
 class NTupleVariable(object):
     '''
@@ -61,7 +66,7 @@ class NTupleVariable(object):
 
     @property
     def branch(self):
-        return {self._name, self._type}
+        return {self._name: self._type}
 
 
 class NTupleCollection(object):
@@ -69,7 +74,7 @@ class NTupleCollection(object):
     classdocs
     '''
 
-    def __init__(self, output_name, source, help_doc, variables=()):
+    def __init__(self, output_name, source, help_doc, variables=[]):
         '''
         Constructor
         '''
@@ -82,6 +87,7 @@ class NTupleCollection(object):
     def prepend_name(col_name, variables):
         for var in variables:
             var._name = col_name + '.' + var._name
+            var._type = 'vec:' + var._type
         return variables
 
     def extract(self, event):
@@ -97,7 +103,15 @@ class NTupleCollection(object):
 
     @property
     def branches(self):
-        return 0
+        b = {}
+
+        for variable in self._variables:
+            b.update(dict(variable.branch))
+        return b
+
+    @property
+    def variables(self):
+        return self._variables
 
 
 class NTupleContent(object):
@@ -112,32 +126,59 @@ class NTupleContent(object):
         self._tree_name = tree_name
         self._output_file = output_file
         self._file = root_open(output_file, 'recreate')
-        self._tree = Tree(tree_name)
+        self._tree = None
 
         self._variables = []
+        self._collections = []
 
         self._counter = Counter()
 
         self._created_branches = False
+        self._branches = {}
+        self._model = None
 
     @property
     def branches(self):
-        return 0
+        return self._branches
+
+    def __add__branches__(self, branches):
+        for name, b_type in branches.items():
+            if name in self._branches:
+                raise ValueError(
+                    'Branch with name="{}" already exists!'.format(name))
+            else:
+                self._branches[name] = convert_type(b_type)
+                print name, self._branches[name]
 
     def add_variable(self, variable):
-        pass
+        if isinstance(variable, NTupleVariable):
+            self._variables.append(variable)
+            self.__add__branches__(variable.branch)
+        else:
+            raise ValueError(
+                'Cannot add variable that is not of type NTupleVariable')
 
     def add_collection(self, collection):
-        pass
+        if isinstance(collection, NTupleCollection):
+            self._collections.append(collection)
+#             self.__add__branches__(collection.branches)
+            for variable in collection.variables:
+                self.add_variable(variable)
+        else:
+            raise ValueError(
+                'Cannot add collection that is not of type NTupleCollection')
 
     def fill(self, event):
         self._counter['processed events'] += 1
 
         if not self._created_branches:
             self.__create_branches__()
+#         self._tree.fill(reset=True)
 
     def __create_branches__(self):
-        pass
+        self._model = TreeModelMeta('MyTreeModel', (TreeModel,), self._branches)
+        self._tree = Tree(self._tree_name, model=self._model)
+        self._created_branches = True
 
     def save(self):
         self._tree.write()

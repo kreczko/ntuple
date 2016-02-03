@@ -20,13 +20,20 @@ class NtupleTestCase(unittest.TestCase):
         self.root_vtypes = [
             vector('int'), vector('bool'), vector('uint'), vector('float')]
 
-    def testScalars(self):
+    def test_scalars(self):
         for nt, rt in zip(self.ntuple_types, self.root_types):
-            self.assertEqual(convert_type(nt), rt)
+            self.assertIsInstance(convert_type(nt), rt)
 
-    def testVectors(self):
+    def test_vectors(self):
         for nt, rt in zip(self.ntuple_vtypes, self.root_vtypes):
             self.assertEqual(convert_type(nt), rt)
+
+    def test_multiple(self):
+        variables = []
+        for _ in range(5):
+            variables.append(convert_type('vec:float'))
+        for v in variables:
+            self.assertEqual(v, vector('float'))
 
     def tearDown(self):
         pass

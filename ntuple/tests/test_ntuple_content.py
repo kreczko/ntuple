@@ -46,11 +46,11 @@ class TestNTupleContent(unittest.TestCase):
         map(self.content.fill, [self.event1, self.event2])
         self.content.save()
 
-    def testFileCreation(self):
-        import os
-        self.assertTrue(os.path.exists(self.output_file))
+#     def test_file_creation(self):
+#         import os
+#         self.assertTrue(os.path.exists(self.output_file))
 
-    def testTreeBranches(self):
+    def test_tree_branches(self):
         with File.open(self.output_file) as f:
             self.assertTrue(f.__contains__('events'))
             tree = f.get('events')
@@ -61,4 +61,4 @@ class TestNTupleContent(unittest.TestCase):
                 self.assertTrue(tree.has_branch(branch), error_msg)
 
     def tearDown(self):
-        pass
+        del self.content

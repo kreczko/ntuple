@@ -6,6 +6,7 @@ from __future__ import (
 import unittest
 from ntuple.tests._objects import Event, Electron
 from ntuple.content import NTupleVariable, NTupleCollection
+from rootpy.stl import vector
 
 
 class TestNTupleCollection(unittest.TestCase):
@@ -39,7 +40,7 @@ class TestNTupleCollection(unittest.TestCase):
                                extract_function=lambda e: e.hadronicOverEm),
             ])
 
-    def __compareElectrons__(self, eles1, eles2):
+    def __compare_electrons__(self, eles1, eles2):
         self.assertEqual(len(eles1), 3)
         self.assertEqual(len(eles2), 2)
 
@@ -52,17 +53,22 @@ class TestNTupleCollection(unittest.TestCase):
         self.assertEqual(e2['electrons.hoE'], self.e2.hadronicOverEm)
         self.assertEqual(e3['electrons.hoE'], self.e3.hadronicOverEm)
 
-    def testCollection(self):
+    def test_collection(self):
         eles1 = self.electrons.extract(self.event1)
         eles2 = self.electrons.extract(self.event2)
 
-        self.__compareElectrons__(eles1, eles2)
+        self.__compare_electrons__(eles1, eles2)
 
-    def testCollectionFromFunction(self):
+    def test_collection_from_function(self):
         eles1 = self.nice_electrons.extract(self.event1)
         eles2 = self.nice_electrons.extract(self.event2)
 
-        self.__compareElectrons__(eles1, eles2)
+        self.__compare_electrons__(eles1, eles2)
+
+    def test_branches(self):
+        branches = {'electrons.pt': 'vec:float', 'electrons.hoE': 'vec:float'}
+        e_branches =  self.electrons.branches
+        self.assertDictEqual(e_branches, branches)
 
     def tearDown(self):
         pass

@@ -4,6 +4,7 @@ from rootpy.tree import Tree, TreeModel, FloatCol, IntCol
 from rootpy.tree.model import TreeModelMeta
 from rootpy import stl
 from rootpy.vector import LorentzVector
+from rootpy.tree.treetypes import FloatArrayCol, IntArrayCol
 
 
 class Event(TreeModel):
@@ -34,7 +35,10 @@ branches = {
     'y': FloatCol(),
     'z': FloatCol(),
     'i': FloatCol(),
-    'vi': stl.vector('int')}
+    'vi': stl.vector('float'),
+    'vx': FloatArrayCol(4),
+    'vy': stl.vector('float'),}
+print branches
 MyTreeModel = TreeModelMeta('MyTreeModel', (TreeModel,), branches)
 tree = Tree("test", model=MyTreeModel)
 # tree.create_branches(branches)
@@ -46,7 +50,9 @@ for i in xrange(10000):
     tree.i = i
     for vi in range(4):
         tree.vi.push_back(vi**2)
-    tree.fill()
+        tree.vy.push_back(vi**3)
+        tree.vx[vi] = vi**2
+    tree.fill(reset=True)
 
 
 tree.write()

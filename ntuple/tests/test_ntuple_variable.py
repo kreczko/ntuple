@@ -56,5 +56,12 @@ class TestNTupleVariable(unittest.TestCase):
             self.e1.pt
         )
 
+    def test_branch(self):
+        run_number = NTupleVariable(
+            'run_number', vtype='uint',
+            extract_function=lambda event: event.getRun()
+        )
+        self.assertDictEqual(run_number.branch, {'run_number': 'uint'})
+
     def tearDown(self):
         pass
