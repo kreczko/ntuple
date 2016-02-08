@@ -7,6 +7,7 @@ import unittest
 from ntuple.tests._objects import Event, Electron
 from ntuple.content import NTupleVariable, NTupleCollection, NTupleContent
 from rootpy.io.file import File
+import tempfile
 
 
 class TestNTupleContent(unittest.TestCase):
@@ -38,7 +39,8 @@ class TestNTupleContent(unittest.TestCase):
             'event_number', vtype='uint',
             extract_function=lambda event: event.id()
         )
-        self.output_file = 'TestNTupleContent.root'
+        self.DATA_ROOT = tempfile.mkdtemp()
+        self.output_file = self.DATA_ROOT + '/TestNTupleContent.root'
         self.content = NTupleContent('events', self.output_file)
         self.content.add_collection(self.electrons)
         self.content.add_variable(self.run_number)
@@ -46,9 +48,9 @@ class TestNTupleContent(unittest.TestCase):
         map(self.content.fill, [self.event1, self.event2])
         self.content.save()
 
-#     def test_file_creation(self):
-#         import os
-#         self.assertTrue(os.path.exists(self.output_file))
+    def test_file_creation(self):
+        import os
+        self.assertTrue(os.path.exists(self.output_file))
 
     def test_tree_branches(self):
         with File.open(self.output_file) as f:
@@ -61,4 +63,6 @@ class TestNTupleContent(unittest.TestCase):
                 self.assertTrue(tree.has_branch(branch), error_msg)
 
     def tearDown(self):
+        import shutil
         del self.content
+        shutil.rmtree(self.DATA_ROOT)

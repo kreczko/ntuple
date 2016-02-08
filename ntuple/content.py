@@ -8,7 +8,7 @@ from rootpy.tree import Tree
 from rootpy.io import root_open
 from collections import Counter
 from rootpy.tree.treetypes import IntCol, UIntCol, BoolCol, FloatCol
-from rootpy  import stl
+from rootpy import stl
 from rootpy.tree.model import TreeModelMeta, TreeModel
 
 __type_map__ = {
@@ -38,6 +38,7 @@ def convert_type(ntuple_type):
     except KeyError:
         # @TODO: change this into logger
         print('Unknown ntuple type "{}"'.format(ntuple_type))
+
 
 class NTupleVariable(object):
     '''
@@ -106,7 +107,7 @@ class NTupleCollection(object):
         b = {}
 
         for variable in self._variables:
-            b.update(dict(variable.branch))
+            b.update(variable.branch)
         return b
 
     @property
@@ -139,6 +140,10 @@ class NTupleContent(object):
 
     @property
     def branches(self):
+        '''
+            Returns the branches of all added NTupleVariables and
+            NTupleCollectons
+        '''
         return self._branches
 
     def __add__branches__(self, branches):
@@ -151,6 +156,9 @@ class NTupleContent(object):
                 print name, self._branches[name]
 
     def add_variable(self, variable):
+        '''
+            Adds an NTupleVariable to the content.
+        '''
         if isinstance(variable, NTupleVariable):
             self._variables.append(variable)
             self.__add__branches__(variable.branch)
@@ -159,27 +167,54 @@ class NTupleContent(object):
                 'Cannot add variable that is not of type NTupleVariable')
 
     def add_collection(self, collection):
+        '''
+            Adds an NTupleCollection to the content.
+        '''
         if isinstance(collection, NTupleCollection):
             self._collections.append(collection)
-#             self.__add__branches__(collection.branches)
-            for variable in collection.variables:
-                self.add_variable(variable)
+            self.__add__branches__(collection.branches)
         else:
             raise ValueError(
                 'Cannot add collection that is not of type NTupleCollection')
 
     def fill(self, event):
+        '''
+            Reads the event content, extracts relevant information and puts it
+            into the Tree.
+        '''
         self._counter['processed events'] += 1
 
         if not self._created_branches:
             self.__create_branches__()
-#         self._tree.fill(reset=True)
+        # write to the TreeBuffers
+        self.__fill_variables__(event)
+        self.__fill_collections(event)
+        # now push TreeBuffers to the Tree.
+        # reset is needed if vectors are used (push_back)
+        self._tree.fill(reset=True)
 
     def __create_branches__(self):
-        self._model = TreeModelMeta('MyTreeModel', (TreeModel,), self._branches)
+        self._model = TreeModelMeta(
+            'MyTreeModel', (TreeModel,), self._branches)
         self._tree = Tree(self._tree_name, model=self._model)
         self._created_branches = True
 
+    def __fill_variables__(self, event):
+        for variable in self._variables:
+            name, value = variable.extract(event).items()
+            self._tree.__setitem__(name, value)
+
+    def __fill_collections(self, event):
+        for c in self._collections:
+            results = c.extract(event)
+            # loop over items of the selection
+            for r in results:
+                # loop over variables of collection
+                for name, value in r.items():
+                    vec = self._tree.__getitem__(name)
+                    vec.push_back(value)
+
+    #@atexit.register might be useful here
     def save(self):
         self._tree.write()
         self._file.close()
