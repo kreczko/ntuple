@@ -153,7 +153,6 @@ class NTupleContent(object):
                     'Branch with name="{}" already exists!'.format(name))
             else:
                 self._branches[name] = convert_type(b_type)
-                print name, self._branches[name]
 
     def add_variable(self, variable):
         '''
@@ -194,6 +193,8 @@ class NTupleContent(object):
         self._tree.fill(reset=True)
 
     def __create_branches__(self):
+        if self._created_branches:
+            return
         self._model = TreeModelMeta(
             'MyTreeModel', (TreeModel,), self._branches)
         self._tree = Tree(self._tree_name, model=self._model)
@@ -201,8 +202,8 @@ class NTupleContent(object):
 
     def __fill_variables__(self, event):
         for variable in self._variables:
-            name, value = variable.extract(event).items()
-            self._tree.__setitem__(name, value)
+            name, value = variable.extract(event).items()[0]
+            self._tree.__setattr__(name, value)
 
     def __fill_collections(self, event):
         for c in self._collections:

@@ -1,8 +1,3 @@
-from __future__ import (
-    absolute_import, division, print_function, with_statement,
-    unicode_literals
-)
-
 import unittest
 from ntuple.tests._objects import Event, Electron
 from ntuple.content import NTupleVariable, NTupleCollection, NTupleContent
@@ -62,7 +57,19 @@ class TestNTupleContent(unittest.TestCase):
                 error_msg = "Branch '{}' does not exist".format(branch)
                 self.assertTrue(tree.has_branch(branch), error_msg)
 
+    def test_tree_content(self):
+        with File.open(self.output_file) as f:
+            tree = f.get('events')
+            for i, event in enumerate(tree):
+                if i == 0:
+                    self.assertEqual(event.run_number, self.event1.getRun())
+                    self.assertEqual(event.event_number, self.event1.id())
+                if i == 1:
+                    self.assertEqual(event.run_number, self.event2.getRun())
+                    self.assertEqual(event.event_number, self.event2.id())
+
     def tearDown(self):
         import shutil
         del self.content
+#         print self.DATA_ROOT
         shutil.rmtree(self.DATA_ROOT)
