@@ -1,7 +1,6 @@
 import unittest
 from ntuple.tests._objects import Event, Electron
 from ntuple.content import NTupleVariable, NTupleCollection
-from rootpy.stl import vector
 
 
 class TestNTupleCollection(unittest.TestCase):
@@ -62,7 +61,7 @@ class TestNTupleCollection(unittest.TestCase):
 
     def test_branches(self):
         branches = {'electrons.pt': 'vec:float', 'electrons.hoE': 'vec:float'}
-        e_branches =  self.electrons.branches
+        e_branches = self.electrons.branches
         self.assertDictEqual(e_branches, branches)
 
     def tearDown(self):

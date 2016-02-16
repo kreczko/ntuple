@@ -4,8 +4,9 @@ from rootpy.tree import Tree, TreeModel, FloatCol, IntCol
 from rootpy.tree.model import TreeModelMeta
 from rootpy import stl
 from rootpy.vector import LorentzVector
-from rootpy.tree.treetypes import FloatArrayCol, IntArrayCol
+from rootpy.tree.treetypes import FloatArrayCol
 import tempfile
+
 
 class Event(TreeModel):
     # properties of particle "a"
@@ -28,7 +29,7 @@ class Event(TreeModel):
 
 print "Creating test tree in chaintest1.root"
 tmp_dir = tempfile.mkdtemp()
-f = root_open(tmp_dir+ "/chaintest1.root", "recreate")
+f = root_open(tmp_dir + "/chaintest1.root", "recreate")
 
 
 branches = {
@@ -38,7 +39,7 @@ branches = {
     'i': FloatCol(),
     'vi': stl.vector('float'),
     'vx': FloatArrayCol(4),
-    'vy': stl.vector('float'),}
+    'vy': stl.vector('float'), }
 # print branches
 MyTreeModel = TreeModelMeta('MyTreeModel', (TreeModel,), branches)
 tree = Tree("test", model=MyTreeModel)

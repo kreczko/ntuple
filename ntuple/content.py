@@ -215,7 +215,7 @@ class NTupleContent(object):
                     vec = self._tree.__getitem__(name)
                     vec.push_back(value)
 
-    #@atexit.register might be useful here
+    # @atexit.register might be useful here
     def save(self):
         self._tree.write()
         self._file.close()
